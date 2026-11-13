@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مشاغب دور - روليت الأزواج</title>
+<style>
+:root{--bg:#fff;--ink:#4a4036;--mute:#a89f93;--cream:#f4ecdc;--red1:#9a1b1f;--red2:#651014;--card:#fff;--line:#eadfca;--husband:#c9a063;--wife:#f08a7a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1411;--ink:#f1e8d8;--mute:#a89a88;--card:#2a201b;--line:#4a3a30}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Noto Naskh Arabic",Tahoma,sans-serif;text-align:center}
+main{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+h1{margin:6px 0 4px;font-size:2rem}
+.sub{color:var(--mute);font-size:.9rem;margin:0 0 16px}
+.names{display:flex;gap:10px;margin-bottom:12px}
+.names label{flex:1;font-size:.8rem;font-weight:700;text-align:start}
+.names input{width:100%;margin-top:4px;padding:11px 12px;border-radius:16px;border:2px solid;background:var(--card);color:var(--ink);font:inherit}
+#nh{border-color:var(--husband)}#nw{border-color:var(--wife)}
+.turn{color:var(--mute);margin:8px 0}
+.turn b{color:var(--ink)}
+.wheelbox{position:relative;width:min(92vw,420px);aspect-ratio:1;margin:6px auto 0}
+canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 14px rgba(0,0,0,.28))}
+.ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--cream);filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));z-index:2}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0 12px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--mute);border-radius:999px;padding:8px 14px;font:inherit;font-size:.85rem;cursor:pointer}
+.tab.on{color:var(--ink);font-weight:700;border-color:var(--husband)}
+.tools{display:none;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+body.admin .tools{display:flex}
+.tools #bDl{flex:1 1 100%;background:var(--red1);color:#fff;border-color:var(--red1)}
+.badge{display:none;background:var(--red1);color:#fff;border-radius:999px;padding:4px 12px;font-size:.78rem;margin-bottom:8px}
+body.admin .badge{display:inline-block}
+.tools button,.btn2{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:11px;font:inherit;font-size:.9rem;cursor:pointer}
+.spin{width:100%;border:0;border-radius:999px;padding:17px;font:inherit;font-weight:800;font-size:1.1rem;background:var(--card);color:var(--red2);box-shadow:0 8px 18px rgba(0,0,0,.2);cursor:pointer}
+:root[data-theme="dark"] .spin{color:#f1e8d8}
+.spin:disabled{opacity:.6}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.modal.open{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:520px;max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));text-align:start}
+.sheet h2{margin:0 0 12px;font-size:1.15rem}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.row input[type=text]{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit}
+.row .em{flex:0 0 52px;text-align:center}
+.th{width:40px;height:40px;border-radius:10px;background:var(--line) center/cover;flex:0 0 40px}
+.x{border:0;background:none;color:var(--red1);font-size:1.1rem;cursor:pointer}
+.prev{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.prev div{width:56px;height:56px;border-radius:10px;background:center/cover}
+.acts{display:flex;gap:8px;margin-top:12px}
+.primary{background:var(--red1)!important;color:#fff!important;border-color:var(--red1)!important}
+.note{color:var(--mute);font-size:.82rem;margin:6px 0}
+#res .sheet{text-align:center;border-radius:22px;max-width:340px;margin:auto}
+#res{align-items:center}
+#rimg{width:100%;border-radius:14px;margin-bottom:10px;display:none}
+#rtxt{font-size:1.35rem;font-weight:800;margin:6px 0 14px}
+</style>
+</head>
+<body>
+<main>
+  <span class="badge">وضع المالك</span>
+  <h1>مشاغب دور</h1>
+  <p class="sub">لعبة ممتعة للأزواج، دوّروا العجلة وجرّبوا</p>
+  <div class="names">
+    <label style="color:var(--husband)">الزوج<input id="nh" placeholder="ادخل الاسم" maxlength="20"></label>
+    <label style="color:var(--wife)">الزوجة<input id="nw" placeholder="ادخلي الاسم" maxlength="20"></label>
+  </div>
+  <div class="turn">الدور على: <b id="who">الزوج</b></div>
+  <div class="wheelbox"><div class="ptr"></div><canvas id="c" width="840" height="840"></canvas></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="tools">
+    <button id="bGal">🖼️ صور من الاستديو</button>
+    <button id="bEdit">✏️ تعديل الكلمات</button>
+    <button id="bDl">🚀 نشر التعديلات للجميع</button>
+  </div>
+  <button class="spin" id="spin">دوّر العجلة 🎡</button>
+</main>
+
+<div class="modal" id="mGal"><div class="sheet">
+  <h2>🖼️ إضافة صور للعجلة</h2>
+  <p class="note">اختر عدة صور، وكل صورة تذهب إلى مثلث بالترتيب بدءاً من المثلث الأول.</p>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+  <button class="btn2" id="pick" style="width:100%">اختيار من الاستديو</button>
+  <div class="prev" id="prev"></div>
+  <div class="acts"><button class="btn2 primary" id="add">إضافة</button><button class="btn2" data-close>إغلاق</button></div>
+</div></div>
+
+<div class="modal" id="mEdit"><div class="sheet">
+  <h2>✏️ تعديل كلمات المثلثات</h2>
+  <div id="rows"></div>
+  <div class="acts"><button class="btn2 primary" id="save">حفظ</button><button class="btn2" id="reset">استرجاع الأصلي</button><button class="btn2" data-close>إلغاء</button></div>
+</div></div>
+
+<div class="modal" id="res"><div class="sheet">
+  <img id="rimg" alt="">
+  <div id="rtxt"></div>
+  <button class="btn2 primary" style="width:100%" data-close>حسناً 🔥</button>
+</div></div>
+
+<script>
+const DEF={
+ sweet:{label:"بداية حلوة 💕",items:[
+  ["عناق دافئ","🤗"],["أجواء رومانسية","🕯️"],["تدليك هادئ","💆"],["رقصة بطيئة","💃"],
+  ["قبلة على اليد","💋"],["رسالة حب","💌"],["كلمة غزل","🌹"],["نظرة طويلة","👀"]]},
+ fun:{label:"وضعية مرحة 🔥",items:[
+  ["اعمل وجه مضحك","🤪"],["غنّ له أغنية","🎤"],["تحدي ضحك","😂"],["قلّد حيوان","🐒"],
+  ["اكتب له شعراً","📝"],["حمل على الظهر","🏇"],["لعبة تخمين","🎲"],["صورة سيلفي","🤳"]]},
+ hot:{label:"حركات حارة 🌶️",items:[
+  ["همسة في الأذن","🤫"],["عناق طويل","🫂"],["قبلة على الخد","😘"],["رقصة ثنائية","🕺"],
+  ["كلمة دلع","🥰"],["تدليك الكتفين","💆‍♂️"],["اطلب أمنية","🌟"],["ليلة مفاجأة","🎁"]]}
+};
+let ADMIN=false,PASS="",dirty=false;
+let state=fresh(),cat="sweet",rot=0,spinning=false,turn=0,pending=[];
+const imgCache={};
+function fresh(){const s={};for(const k in DEF)s[k]=DEF[k].items.map(([t,e])=>({t,e,img:null}));return s}
+function merge(d){for(const k in DEF){if(Array.isArray(d[k])&&d[k].length>=3&&d[k].length<=12)state[k]=d[k].map(x=>({t:String(x.t||""),e:String(x.e||""),img:typeof x.img==="string"?x.img:null}))}}
+function persist(){dirty=true}
+const $=id=>document.getElementById(id);
+const cv=$("c"),ctx=cv.getContext("2d");
+
+function getImg(src){
+  if(!src)return null;
+  if(imgCache[src])return imgCache[src].complete?imgCache[src]:null;
+  const i=new Image();i.onload=draw;i.src=src;imgCache[src]=i;return null;
+}
+function draw(){
+  const W=cv.width,R=W/2,items=state[cat],n=items.length,a=2*Math.PI/n;
+  ctx.clearRect(0,0,W,W);ctx.save();ctx.translate(R,R);
+  // rim
+  ctx.beginPath();ctx.arc(0,0,R-4,0,7);ctx.fillStyle="#f4ecdc";ctx.fill();
+  const r=R-30;
+  items.forEach((it,i)=>{
+    const s=rot+i*a,e=s+a,m=s+a/2;
+    ctx.save();
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,s,e);ctx.closePath();
+    ctx.fillStyle=i%2?"#651014":"#9a1b1f";ctx.fill();
+    const im=getImg(it.img);
+    if(im){
+      ctx.clip();
+      const d=r*1.0,cx=Math.cos(m)*r*.55,cy=Math.sin(m)*r*.55;
+      const k=Math.max(d/im.width,d/im.height)*1.0;
+      ctx.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);
+      ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(-R,-R,W,W);
+    }
+    ctx.restore();
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(s)*r,Math.sin(s)*r);
+    ctx.strokeStyle="#f4ecdc";ctx.lineWidth=3;ctx.stroke();
+    // text
+    ctx.save();ctx.rotate(m);
+    ctx.fillStyle="#fff";ctx.shadowColor="rgba(0,0,0,.7)";ctx.shadowBlur=im?8:0;
+    ctx.textBaseline="middle";ctx.direction="rtl";
+    if(!im||!it.e){ctx.font="52px serif";ctx.textAlign="center";ctx.fillText(it.e||"",r-48,0)}
+    ctx.font="700 32px 'Segoe UI',Tahoma,sans-serif";ctx.textAlign="right";
+    let t=it.t;while(ctx.measureText(t).width>r-170&&t.length>3)t=t.slice(0,-1);
+    ctx.fillText(t,r-(im?24:100),0);
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.strokeStyle="#f4ecdc";ctx.lineWidth=5;ctx.stroke();
+  // hub
+  ctx.beginPath();ctx.arc(0,0,58,0,7);ctx.fillStyle="#651014";ctx.fill();
+  ctx.beginPath();ctx.arc(0,0,50,0,7);ctx.fillStyle="#f4ecdc";ctx.fill();
+  ctx.fillStyle="#651014";ctx.beginPath();ctx.arc(-16,-10,6,0,7);ctx.arc(16,-10,6,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(0,2,24,.2*Math.PI,.8*Math.PI);ctx.lineWidth=6;ctx.lineCap="round";ctx.stroke();
+  ctx.restore();
+}
+function tabsUI(){
+  $("tabs").innerHTML="";
+  for(const k in DEF){const b=document.createElement("button");b.className="tab"+(k===cat?" on":"");b.textContent=DEF[k].label;
+    b.onclick=()=>{if(spinning)return;cat=k;tabsUI();draw()};$("tabs").appendChild(b)}
+}
+function who(){const h=$("nh").value.trim()||"الزوج",w=$("nw").value.trim()||"الزوجة";return turn?w:h}
+function turnUI(){$("who").textContent=who()}
+$("nh").oninput=$("nw").oninput=turnUI;
+
+$("spin").onclick=()=>{
+  if(spinning)return;spinning=true;$("spin").disabled=true;
+  const n=state[cat].length,a=2*Math.PI/n,start=rot;
+  const target=start+Math.PI*2*(5+Math.random()*3)+Math.random()*Math.PI*2,dur=4600,t0=performance.now();
+  (function f(t){
+    const p=Math.min((t-t0)/dur,1),ease=1-Math.pow(1-p,4);
+    rot=start+(target-start)*ease;draw();
+    if(p<1)return requestAnimationFrame(f);
+    spinning=false;$("spin").disabled=false;
+    let ang=((-Math.PI/2-rot)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+    const it=state[cat][Math.floor(ang/a)%n];
+    $("rtxt").textContent=(it.e?it.e+" ":"")+who()+": "+it.t;
+    const ri=$("rimg");if(it.img){ri.src=it.img;ri.style.display="block"}else ri.style.display="none";
+    $("res").classList.add("open");
+    turn=1-turn;turnUI();
+  })(t0);
+};
+
+// modals
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
+document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove("open")});
+
+// gallery
+$("bGal").onclick=()=>{pending=[];renderPrev();$("mGal").classList.add("open")};
+$("pick").onclick=()=>$("file").click();
+function shrink(file){return new Promise(res=>{
+  const fr=new FileReader();fr.onload=()=>{const i=new Image();i.onload=()=>{
+    const m=420,k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement("canvas");
+    c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);
+    res(c.toDataURL("image/jpeg",.78))};i.onerror=()=>res(null);i.src=fr.result};fr.onerror=()=>res(null);fr.readAsDataURL(file)})}
+$("file").onchange=async e=>{
+  const max=state[cat].length;
+  for(const f of [...e.target.files]){if(pending.length>=max)break;const d=await shrink(f);if(d)pending.push(d)}
+  e.target.value="";renderPrev();
+};
+function renderPrev(){$("prev").innerHTML=pending.map(d=>`<div style="background-image:url(${d})"></div>`).join("")||'<span class="note">لم تُختر صور بعد</span>'}
+$("add").onclick=()=>{
+  if(!pending.length)return;
+  pending.forEach((d,i)=>{if(state[cat][i])state[cat][i].img=d});
+  persist();draw();$("mGal").classList.remove("open");
+};
+
+// edit
+$("bEdit").onclick=()=>{
+  $("rows").innerHTML=state[cat].map((it,i)=>`<div class="row" data-i="${i}">
+    <div class="th" style="${it.img?`background-image:url(${it.img})`:""}"></div>
+    <input type="text" class="em" value="${it.e||""}" maxlength="4" aria-label="رمز">
+    <input type="text" class="tx" value="${it.t.replace(/"/g,"&quot;")}" maxlength="40" aria-label="النص">
+    <button class="x" title="حذف الصورة">✕</button></div>`).join("");
+  $("rows").querySelectorAll(".x").forEach(b=>b.onclick=()=>{
+    const r=b.closest(".row");r.dataset.rm="1";r.querySelector(".th").style.backgroundImage="none"});
+  $("mEdit").classList.add("open");
+};
+$("save").onclick=()=>{
+  $("rows").querySelectorAll(".row").forEach(r=>{
+    const it=state[cat][+r.dataset.i];
+    it.e=r.querySelector(".em").value.trim();it.t=r.querySelector(".tx").value.trim()||it.t;
+    if(r.dataset.rm)it.img=null;
+  });
+  persist();draw();$("mEdit").classList.remove("open");
+};
+$("reset").onclick=()=>{if(confirm("استرجاع كلمات وصور هذا القسم الأصلية؟")){state[cat]=fresh()[cat];persist();draw();$("mEdit").classList.remove("open")}};
+
+window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue=""}});
+async function api(body){
+  const r=await fetch("/api/wheel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  return r.ok;
+}
+$("bDl").onclick=async()=>{
+  $("bDl").disabled=true;$("bDl").textContent="جارٍ النشر...";
+  let ok=false;try{ok=await api({password:PASS,data:state})}catch(e){}
+  $("bDl").disabled=false;$("bDl").textContent="🚀 نشر التعديلات للجميع";
+  if(ok){dirty=false;alert("تم النشر ✅ ستظهر الصور الجديدة للمتابعين.")}else alert("فشل النشر، تحقق من الاتصال أو كلمة المرور.");
+};
+async function init(){
+  tabsUI();turnUI();draw();
+  try{const r=await fetch("/api/wheel",{cache:"no-store"});if(r.ok)merge(await r.json())}catch(e){}
+  tabsUI();draw();
+  if(location.hash==="#admin"){
+    const pw=prompt("كلمة مرور المالك");
+    if(pw){let ok=false;try{ok=await api({action:"check",password:pw})}catch(e){}
+      if(ok){ADMIN=true;PASS=pw;document.body.classList.add("admin")}else alert("كلمة المرور غير صحيحة")}
+  }
+}
+init();
+</script>
+</body>
+</html>
