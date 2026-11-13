@@ -28,6 +28,12 @@ export default async (req) => {
         img: typeof x.img === "string" && x.img.startsWith("data:image/") && x.img.length < 600000 ? x.img : null,
       }));
     }
+    if (d.names && typeof d.names === "object") {
+      clean.names = {};
+      for (const k of KEYS) {
+        if (typeof d.names[k] === "string" && d.names[k].trim()) clean.names[k] = d.names[k].trim().slice(0, 30);
+      }
+    }
     await store.setJSON("data", clean);
     return Response.json({ ok: true });
   }
