@@ -84,7 +84,9 @@ body.admin .badge{display:inline-block}
 </div></div>
 
 <div class="modal" id="mEdit"><div class="sheet">
-  <h2>✏️ تعديل كلمات المثلثات</h2>
+  <h2>✏️ أسماء الأقسام</h2>
+  <div id="nameRows"></div>
+  <h2 style="margin-top:14px">✏️ كلمات مثلثات القسم الحالي</h2>
   <div id="rows"></div>
   <div class="acts"><button class="btn2 primary" id="save">حفظ</button><button class="btn2" id="reset">استرجاع الأصلي</button><button class="btn2" data-close>إلغاء</button></div>
 </div></div>
@@ -107,11 +109,13 @@ const DEF={
   ["همسة في الأذن","🤫"],["عناق طويل","🫂"],["قبلة على الخد","😘"],["رقصة ثنائية","🕺"],
   ["كلمة دلع","🥰"],["تدليك الكتفين","💆‍♂️"],["اطلب أمنية","🌟"],["ليلة مفاجأة","🎁"]]}
 };
-let ADMIN=false,PASS="",dirty=false;
+let ADMIN=false,PASS="",dirty=false,names={};
+const lab=k=>names[k]||DEF[k].label;
 let state=fresh(),cat="sweet",rot=0,spinning=false,turn=0,pending=[];
 const imgCache={};
 function fresh(){const s={};for(const k in DEF)s[k]=DEF[k].items.map(([t,e])=>({t,e,img:null}));return s}
-function merge(d){for(const k in DEF){if(Array.isArray(d[k])&&d[k].length>=3&&d[k].length<=12)state[k]=d[k].map(x=>({t:String(x.t||""),e:String(x.e||""),img:typeof x.img==="string"?x.img:null}))}}
+function merge(d){if(d.names&&typeof d.names==="object")for(const k in DEF)if(typeof d.names[k]==="string"&&d.names[k].trim())names[k]=d.names[k].trim().slice(0,30);
+  for(const k in DEF){if(Array.isArray(d[k])&&d[k].length>=3&&d[k].length<=12)state[k]=d[k].map(x=>({t:String(x.t||""),e:String(x.e||""),img:typeof x.img==="string"?x.img:null}))}}
 function persist(){dirty=true}
 const $=id=>document.getElementById(id);
 const cv=$("c"),ctx=cv.getContext("2d");
@@ -163,7 +167,7 @@ function draw(){
 }
 function tabsUI(){
   $("tabs").innerHTML="";
-  for(const k in DEF){const b=document.createElement("button");b.className="tab"+(k===cat?" on":"");b.textContent=DEF[k].label;
+  for(const k in DEF){const b=document.createElement("button");b.className="tab"+(k===cat?" on":"");b.textContent=lab(k);
     b.onclick=()=>{if(spinning)return;cat=k;tabsUI();draw()};$("tabs").appendChild(b)}
 }
 function who(){const h=$("nh").value.trim()||"الزوج",w=$("nw").value.trim()||"الزوجة";return turn?w:h}
@@ -214,6 +218,7 @@ $("add").onclick=()=>{
 
 // edit
 $("bEdit").onclick=()=>{
+  $("nameRows").innerHTML=Object.keys(DEF).map(k=>`<div class="row"><input type="text" data-k="${k}" value="${lab(k).replace(/"/g,"&quot;")}" maxlength="30" aria-label="اسم القسم"></div>`).join("");
   $("rows").innerHTML=state[cat].map((it,i)=>`<div class="row" data-i="${i}">
     <div class="th" style="${it.img?`background-image:url(${it.img})`:""}"></div>
     <input type="text" class="em" value="${it.e||""}" maxlength="4" aria-label="رمز">
@@ -224,6 +229,7 @@ $("bEdit").onclick=()=>{
   $("mEdit").classList.add("open");
 };
 $("save").onclick=()=>{
+  $("nameRows").querySelectorAll("input").forEach(i=>{const v=i.value.trim();if(v)names[i.dataset.k]=v});
   $("rows").querySelectorAll(".row").forEach(r=>{
     const it=state[cat][+r.dataset.i];
     it.e=r.querySelector(".em").value.trim();it.t=r.querySelector(".tx").value.trim()||it.t;
@@ -240,7 +246,7 @@ async function api(body){
 }
 $("bDl").onclick=async()=>{
   $("bDl").disabled=true;$("bDl").textContent="جارٍ النشر...";
-  let ok=false;try{ok=await api({password:PASS,data:state})}catch(e){}
+  let ok=false;try{ok=await api({password:PASS,data:{...state,names}})}catch(e){}
   $("bDl").disabled=false;$("bDl").textContent="🚀 نشر التعديلات للجميع";
   if(ok){dirty=false;alert("تم النشر ✅ ستظهر الصور الجديدة للمتابعين.")}else alert("فشل النشر، تحقق من الاتصال أو كلمة المرور.");
 };
